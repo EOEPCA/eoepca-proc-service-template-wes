@@ -129,7 +129,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):
             "title": f"TOIL run log",
             "rel": "related",
         }
-
+        return zoo.SERVICE_SUCCEEDED
     else:
         conf["lenv"]["message"] = zoo._("Execution failed")
         return zoo.SERVICE_FAILED
