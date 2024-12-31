@@ -113,22 +113,24 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):
     )
     exit_status = runner.execute()
 
-    if exit_status == zoo.SERVICE_SUCCEEDED:
-        json_out_string= json.dumps(runner.demo_outputs["s3_catalog_output"], indent=4)
-        outputs[list(outputs.keys())[0]]["value"]=json_out_string
+    # Fetch the logs whatever the exit status is
+    if runner is not None and runner.run_log_content is not None:
         with open(os.path.join(
                     conf["main"]["tmpPath"],
-                    f"{conf['lenv']['Identifier']}-{conf['lenv']['usid']}.log"
+                    f"{conf['lenv']['Identifier']}-{conf['lenv']['usid']}_job.log"
                 ),"w+") as f:
             f.write(runner.run_log_content)
         conf["service_logs"]={
             "url": os.path.join(
-                conf["main"]["tmpUrl"],
-                f"{conf['lenv']['Identifier']}-{conf['lenv']['usid']}.log"
+                conf["main"]["tmpUrl"].replace("/temp","/"+conf["auth_env"]["user"]+"/temp"),
+                f"{conf['lenv']['Identifier']}-{conf['lenv']['usid']}_job.log"
             ),
             "title": f"TOIL run log",
             "rel": "related",
         }
+    if exit_status == zoo.SERVICE_SUCCEEDED:
+        json_out_string= json.dumps(runner.demo_outputs["s3_catalog_output"], indent=4)
+        outputs[list(outputs.keys())[0]]["value"]=json_out_string
         return zoo.SERVICE_SUCCEEDED
     else:
         conf["lenv"]["message"] = zoo._("Execution failed")
