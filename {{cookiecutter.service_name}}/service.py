@@ -170,7 +170,7 @@ class WESRunnerExecutionHandler:
             "region_name": "us-east-1",
             "aws_secret_access_key": "test",
             "aws_access_key_id": "test",
-            "endpoint_url": "http://localhost:4900",
+            "endpoint_url": "http://ospd.geolabs.fr:4900",
         }
 
         zoo.info(f"additional_parameters: {additional_parameters.keys()}")
@@ -221,12 +221,13 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):
     ) as stream:
         cwl = yaml.safe_load(stream)
 
+    execution_handler=WESRunnerExecutionHandler(conf=conf)
     runner = ZooWESRunner(
         cwl=cwl,
         conf=conf,
         inputs=inputs,
         outputs=outputs,
-        execution_handler=WESRunnerExecutionHandler(conf=conf),
+        execution_handler=execution_handler,
     )
     exit_status = runner.execute()
 
