@@ -73,6 +73,7 @@ class WESRunnerExecutionHandler:
 
     def post_execution_hook(self, log, output, usage_report, tool_logs):
 
+        myKey=list(output.keys())[0]
         # unset HTTP proxy or else the S3 client will use it and fail
         os.environ.pop("HTTP_PROXY", None)
 
@@ -80,9 +81,9 @@ class WESRunnerExecutionHandler:
 
         StacIO.set_default(CustomStacIO)
 
-        zoo.info(f"Read catalog from STAC Catalog URI: {output['s3_catalog_output']}")
+        zoo.info(f"Read catalog from STAC Catalog URI: {output[myKey]}")
 
-        cat = read_file(output["s3_catalog_output"])
+        cat = read_file(output[myKey])
 
         collection_id = self.get_additional_parameters()["sub_path"]
 
@@ -247,7 +248,7 @@ def {{cookiecutter.workflow_id |replace("-", "_")  }}(conf, inputs, outputs):
             "rel": "related",
         }
     if exit_status == zoo.SERVICE_SUCCEEDED:
-        json_out_string= json.dumps(runner.demo_outputs["s3_catalog_output"], indent=4)
+        json_out_string= json.dumps(runner.demo_outputs[list(runner.demo_outputs.keys())[0]], indent=4)
         outputs[list(outputs.keys())[0]]["value"] = json.dumps(
             execution_handler.results, indent=2
         )
