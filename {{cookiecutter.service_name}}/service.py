@@ -32,7 +32,8 @@ class CustomStacIO(DefaultStacIO):
         self.s3_client = self.session.create_client(
             service_name="s3",
             region_name="us-east-1",
-            endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
+            #endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
+            endpoint_url="http://145.239.195.35:4900",
             aws_access_key_id="test",
             aws_secret_access_key="test",
         )
@@ -166,6 +167,13 @@ class WESRunnerExecutionHandler:
         zoo.info("get_additional_parameters")
 
         additional_parameters = {
+            "process": self.conf["lenv"]["usid"],
+            "STAGEOUT_OUTPUT": "results",
+            "STAGEOUT_AWS_REGION": "us-east-1",
+            "STAGEOUT_AWS_SECRET_ACCESS_KEY": "test",
+            "STAGEOUT_AWS_ACCESS_KEY_ID": "test",
+            "STAGEOUT_AWS_SERVICEURL": "http://145.239.195.35:4900",
+            "collection_id": self.conf["lenv"]["usid"],
             "s3_bucket": "results",
             "sub_path": self.conf["lenv"]["usid"],
             "region_name": "us-east-1",
