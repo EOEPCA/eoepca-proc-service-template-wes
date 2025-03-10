@@ -31,11 +31,13 @@ class CustomStacIO(DefaultStacIO):
         self.session = botocore.session.Session()
         self.s3_client = self.session.create_client(
             service_name="s3",
-            region_name="us-east-1",
-            #endpoint_url="http://eoap-zoo-project-localstack.eoap-zoo-project.svc.cluster.local:4566",
-            endpoint_url="http://145.239.195.35:4900",
-            aws_access_key_id="test",
-            aws_secret_access_key="test",
+            region_name=os.environ.get("AWS_REGION"),
+            endpoint_url=os.environ.get("AWS_S3_ENDPOINT"),
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+            verify=True,
+            use_ssl=True,
+            config=Config(s3={"addressing_style": "path", "signature_version": "s3v4"}),
         )
 
     def read_text(self, source, *args, **kwargs):
@@ -77,6 +79,11 @@ class WESRunnerExecutionHandler:
         myKey=list(output.keys())[0]
         # unset HTTP proxy or else the S3 client will use it and fail
         os.environ.pop("HTTP_PROXY", None)
+
+        os.environ["AWS_S3_REGION"] = self.get_additional_parameters()["region_name"]
+        os.environ["AWS_S3_ENDPOINT"] = self.get_additional_parameters()["endpoint_url"]
+        os.environ["AWS_ACCESS_KEY_ID"] = self.get_additional_parameters()["aws_access_key_id"]
+        os.environ["AWS_SECRET_ACCESS_KEY"] = self.get_additional_parameters()["aws_secret_access_key"]
 
         zoo.info("Post execution hook")
 
@@ -160,29 +167,29 @@ class WESRunnerExecutionHandler:
     def set_job_id(self, job_id):
         self.job_id = job_id
 
+    def get_pod_env_vars(self):
+        logger.info("get_pod_env_vars")
+
+        return self.conf.get("pod_env_vars", {})
+
+    def get_pod_node_selector(self):
+        logger.info("get_pod_node_selector")
+
+        return self.conf.get("pod_node_selector", {})
+
+    def get_secrets(self):
+        logger.info("get_secrets")
+
+        return self.local_get_file("/assets/pod_imagePullSecrets.yaml")
+
     def get_additional_parameters(self):
-        # sets the additional parameters for the execution
-        # of the wrapped Application Package
+        logger.info("get_additional_parameters")
+        additional_parameters: Dict[str, str] = {}
+        additional_parameters = self.conf.get("additional_parameters", {})
 
-        zoo.info("get_additional_parameters")
+        additional_parameters["sub_path"] = self.conf["lenv"]["usid"]
 
-        additional_parameters = {
-            "process": self.conf["lenv"]["usid"],
-            "STAGEOUT_OUTPUT": "results",
-            "STAGEOUT_AWS_REGION": "us-east-1",
-            "STAGEOUT_AWS_SECRET_ACCESS_KEY": "test",
-            "STAGEOUT_AWS_ACCESS_KEY_ID": "test",
-            "STAGEOUT_AWS_SERVICEURL": "http://145.239.195.35:4900",
-            "collection_id": self.conf["lenv"]["usid"],
-            "s3_bucket": "results",
-            "sub_path": self.conf["lenv"]["usid"],
-            "region_name": "us-east-1",
-            "aws_secret_access_key": "test",
-            "aws_access_key_id": "test",
-            "endpoint_url": "http://ospd.geolabs.fr:4900",
-        }
-
-        zoo.info(f"additional_parameters: {additional_parameters.keys()}")
+        logger.info(f"additional_parameters: {additional_parameters.keys()}")
 
         return additional_parameters
 
