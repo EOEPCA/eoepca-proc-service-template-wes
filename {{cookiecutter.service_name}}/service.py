@@ -14,7 +14,6 @@ import sys
 import traceback
 import boto3  # noqa: F401
 import botocore
-from loguru import logger
 from urllib.parse import urlparse
 from botocore.exceptions import ClientError
 from botocore.client import Config
@@ -130,11 +129,11 @@ class WESRunnerExecutionHandler:
 
         item_collection = ItemCollection(items=items)
 
-        logger.info("Created feature collection from items")
+        zoo.info("Created feature collection from items")
 
         # Trap the case of no output collection
         if item_collection is None:
-            logger.error("The output collection is empty")
+            zoo.error("The output collection is empty")
             self.feature_collection = json.dumps({}, indent=2)
             return
 
@@ -168,28 +167,28 @@ class WESRunnerExecutionHandler:
         self.job_id = job_id
 
     def get_pod_env_vars(self):
-        logger.info("get_pod_env_vars")
+        zoo.info("get_pod_env_vars")
 
         return self.conf.get("pod_env_vars", {})
 
     def get_pod_node_selector(self):
-        logger.info("get_pod_node_selector")
+        zoo.info("get_pod_node_selector")
 
         return self.conf.get("pod_node_selector", {})
 
     def get_secrets(self):
-        logger.info("get_secrets")
+        zoo.info("get_secrets")
 
         return self.local_get_file("/assets/pod_imagePullSecrets.yaml")
 
     def get_additional_parameters(self):
-        logger.info("get_additional_parameters")
+        zoo.info("get_additional_parameters")
         additional_parameters: Dict[str, str] = {}
         additional_parameters = self.conf.get("additional_parameters", {})
 
         additional_parameters["sub_path"] = self.conf["lenv"]["usid"]
 
-        logger.info(f"additional_parameters: {additional_parameters.keys()}")
+        zoo.info(f"additional_parameters: {additional_parameters.keys()}")
 
         return additional_parameters
 
