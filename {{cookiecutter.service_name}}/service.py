@@ -117,10 +117,10 @@ class WESRunnerExecutionHandler:
                 temp_asset["storage:requester_pays"] = False
                 temp_asset["storage:tier"] = "Standard"
                 temp_asset["storage:region"] = self.get_additional_parameters()[
-                    "region_name"
+                    "STAGEOUT_AWS_REGION"
                 ]
                 temp_asset["storage:endpoint"] = self.get_additional_parameters()[
-                    "endpoint_url"
+                    "STAGEOUT_AWS_SERVICEURL"
                 ]
                 item.assets[asset_key] = item.assets[asset_key].from_dict(temp_asset)
             item.collection_id = collection_id
