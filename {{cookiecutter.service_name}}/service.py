@@ -79,10 +79,10 @@ class WESRunnerExecutionHandler:
         # unset HTTP proxy or else the S3 client will use it and fail
         os.environ.pop("HTTP_PROXY", None)
 
-        os.environ["AWS_S3_REGION"] = self.get_additional_parameters()["region_name"]
-        os.environ["AWS_S3_ENDPOINT"] = self.get_additional_parameters()["endpoint_url"]
-        os.environ["AWS_ACCESS_KEY_ID"] = self.get_additional_parameters()["aws_access_key_id"]
-        os.environ["AWS_SECRET_ACCESS_KEY"] = self.get_additional_parameters()["aws_secret_access_key"]
+        os.environ["AWS_S3_REGION"] = self.get_additional_parameters()["STAGEOUT_AWS_REGION"]
+        os.environ["AWS_S3_ENDPOINT"] = self.get_additional_parameters()["STAGEOUT_AWS_SERVICEURL"]
+        os.environ["AWS_ACCESS_KEY_ID"] = self.get_additional_parameters()["STAGEOUT_AWS_ACCESS_KEY_ID"]
+        os.environ["AWS_SECRET_ACCESS_KEY"] = self.get_additional_parameters()["STAGEOUT_AWS_SECRET_ACCESS_KEY"]
 
         zoo.info("Post execution hook")
 
